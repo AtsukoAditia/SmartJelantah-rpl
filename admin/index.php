@@ -55,6 +55,45 @@ foreach ($stationsArray as $s) {
     }
 }
 
+// Filter logic for transaction history
+$where = [];
+$params = [];
+$types = '';
+
+if (!empty($_GET['tanggal_mulai'])) {
+    $where[] = "DATE(s.waktu_setor) >= ?";
+    $params[] = $_GET['tanggal_mulai'];
+    $types .= 's';
+}
+if (!empty($_GET['tanggal_selesai'])) {
+    $where[] = "DATE(s.waktu_setor) <= ?";
+    $params[] = $_GET['tanggal_selesai'];
+    $types .= 's';
+}
+if (!empty($_GET['kode_warga'])) {
+    $where[] = "u.kode_warga LIKE ?";
+    $params[] = '%' . $_GET['kode_warga'] . '%';
+    $types .= 's';
+}
+if (!empty($_GET['id_device'])) {
+    $where[] = "s.id_device = ?";
+    $params[] = $_GET['id_device'];
+    $types .= 's';
+}
+
+$sql = "SELECT s.*, u.nama, u.kode_warga FROM setoran_jelantah s JOIN users u ON s.id_user = u.id_user";
+if ($where) {
+    $sql .= " WHERE " . implode(' AND ', $where);
+}
+$sql .= " ORDER BY s.waktu_setor DESC";
+
+$stmt = $conn->prepare($sql);
+if ($params) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$transaksi = $stmt->get_result();
+
 $pageTitle = 'Dashboard Admin - SmartJelantah';
 require_once __DIR__ . '/../layouts/header.php';
 ?>
@@ -233,12 +272,57 @@ require_once __DIR__ . '/../layouts/header.php';
     </div>
 </div>
 
-<!-- Transaction History (collapsed by default) -->
+<!-- Transaction History with Filter -->
 <div class="card card-custom">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-success me-1"></i> Rekapitulasi Transaksi Setoran Warga</h6>
-        <a href="export_csv.php" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+        <div class="d-flex gap-2">
+            <a href="export_csv.php" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel"></i> Filter</button>
+        </div>
     </div>
+    
+    <!-- Filter Modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="filterModalLabel"><i class="bi bi-funnel"></i> Filter Transaksi</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="GET" class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Dari Tanggal</label>
+                            <input type="date" name="tanggal_mulai" class="form-control form-control-sm" value="<?= htmlspecialchars($_GET['tanggal_mulai'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Sampai Tanggal</label>
+                            <input type="date" name="tanggal_selesai" class="form-control form-control-sm" value="<?= htmlspecialchars($_GET['tanggal_selesai'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Kode Warga</label>
+                            <input type="text" name="kode_warga" class="form-control form-control-sm" placeholder="WRG-001" value="<?= htmlspecialchars($_GET['kode_warga'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Mesin</label>
+                            <select name="id_device" class="form-select form-select-sm">
+                                <option value="">Semua</option>
+                                <?php foreach ($stationsArray as $s): ?>
+                                    <option value="<?= $s['id_device'] ?>" <?= ($_GET['id_device'] ?? '') === $s['id_device'] ? 'selected' : '' ?>><?= $s['id_device'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-search"></i> Terapkan</button>
+                        <a href="index.php" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle small mb-0">
@@ -254,9 +338,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    $transaksi = mysqli_query($conn, "SELECT s.*, u.nama, u.kode_warga FROM setoran_jelantah s JOIN users u ON s.id_user = u.id_user ORDER BY s.waktu_setor DESC LIMIT 50");
-                    while ($t = mysqli_fetch_assoc($transaksi)): ?>
+                    <?php while ($t = mysqli_fetch_assoc($transaksi)): ?>
                         <tr>
                             <td><code><?= htmlspecialchars($t['event_id']) ?></code></td>
                             <td><?= date('d/m/Y H:i', strtotime($t['waktu_setor'])) ?></td>

@@ -11,6 +11,16 @@ $warga = $stmt->get_result()->fetch_assoc();
 
 // Get all stations
 $stations = mysqli_query($conn, "SELECT * FROM stasiun_iot WHERE status = 'aktif' ORDER BY id_device");
+$stationsArray = [];
+$stationCount = 0;
+while ($s = mysqli_fetch_assoc($stations)) {
+    $stationsArray[] = $s;
+    $stationCount++;
+}
+
+// Get single station for tank status card (first active station)
+$iot = $stationsArray[0] ?? null;
+$persenTangki = ($iot && $iot['kapasitas_maks_kg'] > 0) ? round(($iot['berat_terisi_kg'] / $iot['kapasitas_maks_kg']) * 100, 1) : 0;
 
 // Filter logic for history
 $where = [];
@@ -47,15 +57,6 @@ $stats = mysqli_fetch_assoc(mysqli_query($conn, "
         COUNT(*) as total_transaksi
     FROM setoran_jelantah WHERE id_user = $id_user
 "));
-
-// Count stations
-$stationCount = 0;
-$stationsArray = [];
-mysqli_data_seek($stations, 0);
-while ($s = mysqli_fetch_assoc($stations)) {
-    $stationsArray[] = $s;
-    $stationCount++;
-}
 
 $pageTitle = 'Dashboard Warga - SmartJelantah';
 require_once __DIR__ . '/../layouts/header.php';
@@ -126,7 +127,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <hr class="border-light opacity-25">
             
             <div class="d-flex justify-content-between small">
-                <span>Tarif Aktif: <strong>Rp <?= number_format($stationsArray[0]['harga_per_kg'] ?? 6000, 0, ',', '.') ?>/kg</strong></span>
+                <span>Tarif Aktif: <strong>Rp <?= number_format($iot['harga_per_kg'] ?? 6000, 0, ',', '.') ?>/kg</strong></span>
                 <span>Total Transaksi: <strong><?= $stats['total_transaksi'] ?></strong></span>
             </div>
         </div>
@@ -192,6 +193,72 @@ require_once __DIR__ . '/../layouts/header.php';
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Tank Status Card -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-custom p-4 h-100">
+            <h6 class="fw-bold mb-3 d-flex align-items-center">
+                <i class="bi bi-hdd-rack text-success me-2"></i> Status Stasiun IoT
+            </h6>
+            <p class="text-muted small mb-2"><?= htmlspecialchars($iot['nama_lokasi'] ?? '-') ?> (<?= htmlspecialchars($iot['id_device'] ?? '-') ?>)</p>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>Kapasitas</span>
+                    <span class="fw-bold"><?= $persenTangki ?>%</span>
+                </div>
+                <div class="progress" style="height: 14px;">
+                    <div class="progress-bar <?= $persenTangki >= 90 ? 'bg-danger' : ($persenTangki >= 70 ? 'bg-warning' : 'bg-success') ?>" 
+                         style="width: <?= min($persenTangki, 100) ?>%;" 
+                         role="progressbar" 
+                         aria-valuenow="<?= $persenTangki ?>" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        <?= $persenTangki ?>%
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="card card-custom bg-light p-2 text-center">
+                        <small class="text-muted d-block">Terisi</small>
+                        <strong><?= $iot['berat_terisi_kg'] ?? 0 ?> kg</strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card card-custom bg-light p-2 text-center">
+                        <small class="text-muted d-block">Sisa</small>
+                        <strong class="text-success"><?= max(0, ($iot['kapasitas_maks_kg'] ?? 30) - ($iot['berat_terisi_kg'] ?? 0)) ?> kg</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <?php if ($persenTangki >= 90): ?>
+                <div class="alert alert-danger py-2 small mb-2 d-flex align-items-center">
+                    <i class="bi bi-lock-fill me-2"></i> Tangki Penuh (>=90%) - Inlet terkunci otomatis!
+                </div>
+            <?php elseif ($persenTangki >= 70): ?>
+                <div class="alert alert-warning py-2 small mb-2 d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Kapasitas mendekati batas (>=70%)
+                </div>
+            <?php else: ?>
+                <div class="alert alert-success py-2 small mb-2 d-flex align-items-center">
+                    <i class="bi bi-check-circle me-2"></i> Mesin Siap Menerima Setoran
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($persenTangki < 90): ?>
+                <a href="<?= BASE_URL ?>/simulator_iot.php" class="btn btn-success btn-sm w-100 fw-semibold">
+                    <i class="bi bi-droplet-half me-1"></i> Setor Minyak Sekarang
+                </a>
+            <?php else: ?>
+                <button class="btn btn-secondary btn-sm w-100" disabled>
+                    <i class="bi bi-lock me-1"></i> Mesin Terkunci (Tangki Penuh)
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
