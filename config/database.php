@@ -19,8 +19,8 @@ if (preg_match('#^(/[^/]+)#', $scriptName, $matches)) {
 define('BASE_URL', $baseUrl);
 
 $db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
+$db_user = 'smartjelantah';
+$db_pass = 'SmartJelantah2026!';
 $db_name = 'smartjelantah_db';
 
 $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
