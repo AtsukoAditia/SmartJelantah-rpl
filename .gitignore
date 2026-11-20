@@ -1,0 +1,10 @@
+# Konfigurasi lokal sensitif
+.env
+config/local.php
+
+# File sementara sistem operasi & editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
