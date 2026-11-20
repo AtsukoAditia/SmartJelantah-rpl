@@ -10,10 +10,10 @@ Aplikasi web *mobile-responsive* untuk mengelola penyetoran minyak jelantah ruma
 
 | Nama Lengkap | NPM | Email | Branch GitHub | Tanggung Jawab Modul |
 | :--- | :--- | :--- | :--- | :--- |
-| **Aditia Nugraha** | 1284 | `atsuko.aditia@gmail.com` | `feature/core-auth` | Setup Repository, Database, Autentikasi RBAC (`login.php`, `register.php`), & Deployment |
-| **Sri Wahyuni** | 1188 | `yunni.studymail@gmail.com` | `feature/dashboard-warga` | Antarmuka Mobile Warga (`user/index.php`), Kartu Saldo, QR Code Identitas, & Riwayat Setoran |
-| **Adit Tio Dharma** | 1179 | `Aditiodarma8@gmail.com` | `feature/admin-panel` | Dashboard Admin (`admin/index.php`), Monitoring Kapasitas Tangki, Reset Kuras, & Export CSV |
-| **Muhamad Hilman Maulana** | 1245 | `muhamadhilmanmaulana325@gmail.com` | `feature/iot-simulator` | REST API Endpoint IoT (`api/setor_iot.php`), Logika Konversi Saldo, & Simulator Mesin IoT |
+| **Aditia Nugraha** | 202343501284 | `atsuko.aditia@gmail.com` | `feature/core-auth` | Setup Repository, Database, Autentikasi RBAC (`login.php`, `register.php`), & Deployment |
+| **Sri Wahyuni** | 202343501188 | `yunni.studymail@gmail.com` | `feature/dashboard-warga` | Antarmuka Mobile Warga (`user/index.php`), Kartu Saldo, QR Code Identitas, & Riwayat Setoran |
+| **Adit Tio Dharma** | 202343501179 | `Aditiodarma8@gmail.com` | `feature/admin-panel` | Dashboard Admin (`admin/index.php`), Monitoring Kapasitas Tangki, Reset Kuras, & Export CSV |
+| **Muhamad Hilman Maulana** | 202343501245 | `muhamadhilmanmaulana325@gmail.com` | `feature/iot-simulator` | REST API Endpoint IoT (`api/setor_iot.php`), Logika Konversi Saldo, & Simulator Mesin IoT |
 
 ---
 
