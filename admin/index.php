@@ -151,7 +151,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <thead class="table-light">
                     <tr>
                         <th>ID</th>
-                        <th>Nama Lokasi</th>
+                        <th>Lokasi</th>
                         <th>Alamat</th>
                         <th>Kapasitas Maks</th>
                         <th>Terisi</th>
