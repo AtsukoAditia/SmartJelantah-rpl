@@ -1,4 +1,4 @@
-.# SmartJelantah: Platform Otomatisasi Penampungan Jelantah dan Integrasi Saldo Belanja Koperasi Berbasis IoT
+# SmartJelantah: Platform Otomatisasi Penampungan Jelantah dan Integrasi Saldo Belanja Koperasi Berbasis IoT
 
 Tugas Proyek Berkelanjutan Mata Kuliah **Rekayasa Perangkat Lunak (RPL)** — Universitas Indraprasta PGRI (UNINDRA).
 
