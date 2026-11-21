@@ -48,7 +48,7 @@ if ($checkUser) {
         $stmt->bind_param("sssssdd", $nama1, $email1, $adminPass, $role1, $kode1, $saldo1, $kg1);
         $stmt->execute();
 
-        $nama2 = 'Ibu Sari (Warga)';
+        $nama2 = 'Ibu Sarri (Warga)';
         $email2 = 'warga@smartjelantah.id';
         $role2 = 'warga';
         $kode2 = 'WRG-001';
